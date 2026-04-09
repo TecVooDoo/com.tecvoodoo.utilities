@@ -39,5 +39,55 @@ namespace TecVooDoo.Utilities
                 yield return parent.GetChild(i);
             }
         }
+
+        /// <summary>
+        /// Resets local position to Vector3.zero.
+        /// </summary>
+        public static void ResetPosition(this Transform transform)
+        {
+            transform.localPosition = Vector3.zero;
+        }
+
+        /// <summary>
+        /// Resets local rotation to Quaternion.identity.
+        /// </summary>
+        public static void ResetRotation(this Transform transform)
+        {
+            transform.localRotation = Quaternion.identity;
+        }
+
+        /// <summary>
+        /// Resets local scale to Vector3.one.
+        /// </summary>
+        public static void ResetScale(this Transform transform)
+        {
+            transform.localScale = Vector3.one;
+        }
+
+        /// <summary>
+        /// Destroys all child GameObjects immediately (editor) or deferred (runtime).
+        /// </summary>
+        public static void DestroyChildren(this Transform parent)
+        {
+            for (int i = parent.childCount - 1; i >= 0; i--)
+            {
+                Object.Destroy(parent.GetChild(i).gameObject);
+            }
+        }
+
+        /// <summary>
+        /// Returns the full hierarchy path of the transform (e.g. "Root/Parent/Child").
+        /// </summary>
+        public static string HierarchyPath(this Transform transform)
+        {
+            string path = transform.name;
+            Transform current = transform.parent;
+            while (current != null)
+            {
+                path = current.name + "/" + path;
+                current = current.parent;
+            }
+            return path;
+        }
     }
 }

@@ -55,5 +55,21 @@ namespace TecVooDoo.Utilities
         {
             return new Vector2(x ?? vector.x, y ?? vector.y);
         }
+
+        /// <summary>
+        /// Projects a Vector3 to Vector2 using X and Y components.
+        /// </summary>
+        public static Vector2 ToVector2XY(this Vector3 vector)
+        {
+            return new Vector2(vector.x, vector.y);
+        }
+
+        /// <summary>
+        /// Projects a Vector3 to Vector2 using X and Z components.
+        /// </summary>
+        public static Vector2 ToVector2XZ(this Vector3 vector)
+        {
+            return new Vector2(vector.x, vector.z);
+        }
     }
 }

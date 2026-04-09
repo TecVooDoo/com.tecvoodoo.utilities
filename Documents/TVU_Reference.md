@@ -1,9 +1,9 @@
 # TecVooDoo Utilities - Reference
 
-**Package:** `com.tecvoodoo.utilities` v1.0.0
+**Package:** `com.tecvoodoo.utilities` v1.2.0
 **Namespace:** `TecVooDoo.Utilities`
 **Source:** `E:\Unity\DefaultUnityPackages\com.tecvoodoo.utilities\`
-**Last Updated:** March 12, 2026
+**Last Updated:** April 9, 2026
 
 ---
 
@@ -34,6 +34,10 @@ Vector3 dir = origin.DirectionTo(target);              // normalized direction
 
 // Vector2 variant
 Vector2 v2 = input.With(y: 0f);
+
+// Vector3 to Vector2 projections
+Vector2 xy = position.ToVector2XY();                   // X,Y components
+Vector2 xz = position.ToVector2XZ();                   // X,Z components
 ```
 
 ### TransformExtensions
@@ -41,6 +45,12 @@ Vector2 v2 = input.With(y: 0f);
 ```csharp
 Rigidbody rb = transform.GetOrAdd<Rigidbody>();        // gets or adds component
 IEnumerable<Transform> kids = parent.Children();       // iterate direct children
+
+transform.ResetPosition();                              // localPosition = zero
+transform.ResetRotation();                              // localRotation = identity
+transform.ResetScale();                                 // localScale = one
+transform.DestroyChildren();                            // destroy all children
+string path = transform.HierarchyPath();                // "Root/Parent/Child"
 ```
 
 ### GameObjectExtensions
@@ -49,6 +59,7 @@ IEnumerable<Transform> kids = parent.Children();       // iterate direct childre
 T safe = component.OrNull<T>();                        // null-safe Unity Object check
 T comp = gameObject.GetOrAdd<T>();                     // gets or adds component
 bool has = gameObject.HasComponent<Collider>();
+gameObject.SetLayerRecursively(LayerMask.NameToLayer("Ignore Raycast"));
 ```
 
 ### CollectionExtensions
@@ -75,6 +86,10 @@ float remapped = value.Remap(0f, 1f, -10f, 10f);     // remap to new range
 bool close = a.Approximately(b);                       // Mathf.Approximately wrapper
 bool odd  = n.IsOdd();
 bool even = n.IsEven();
+
+bool inRange = value.InRangeOf(0f, 100f);              // inclusive range check
+float snapped = value.Quantize(0.25f);                 // snap to grid
+int rounded = value.RoundToInt();                      // Mathf.RoundToInt
 ```
 
 ### ColorExtensions
@@ -85,8 +100,10 @@ Color sum     = color.Add(other);
 Color diff    = color.Subtract(other);
 Color blended = color.Blend(target, 0.5f);            // lerp by ratio
 Color inv     = color.Invert();
-string hex    = color.ToHex();                        // "RRGGBBAA"
+string hex    = color.ToHex();                        // "#RRGGBBAA"
+string hexRgb = color.ToHexRGB();                     // "#RRGGBB" (no alpha)
 Color parsed  = ColorExtensions.FromHex("#FF0000FF");
+bool ok = ColorExtensions.TryFromHex("#FF0000", out Color c); // safe parse
 ```
 
 ### StringExtensions

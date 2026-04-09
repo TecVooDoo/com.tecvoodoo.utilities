@@ -100,6 +100,23 @@ namespace TecVooDoo.Utilities
             throw new ArgumentException("Invalid hex color string: " + hex, nameof(hex));
         }
 
+        /// <summary>
+        /// Converts the color to a hexadecimal string without alpha (e.g. "#FF0000").
+        /// </summary>
+        public static string ToHexRGB(this Color color)
+        {
+            return "#" + ColorUtility.ToHtmlStringRGB(color);
+        }
+
+        /// <summary>
+        /// Tries to parse a hexadecimal string into a Color.
+        /// Returns true on success, false on failure.
+        /// </summary>
+        public static bool TryFromHex(string hex, out Color color)
+        {
+            return ColorUtility.TryParseHtmlString(hex, out color);
+        }
+
         static Color ClampChannels(Color color)
         {
             return new Color(

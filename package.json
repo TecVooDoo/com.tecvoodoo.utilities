@@ -1,7 +1,7 @@
 {
     "name": "com.tecvoodoo.utilities",
     "displayName": "TecVooDoo Utilities",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "unity": "6000.3",
     "unityRelease": "0f1",
     "description": "Shared utility library for all TecVooDoo Unity projects. Includes zero-alloc extensions, PlayerLoop-based timers, singleton patterns, gameplay components, and category-based logging.",

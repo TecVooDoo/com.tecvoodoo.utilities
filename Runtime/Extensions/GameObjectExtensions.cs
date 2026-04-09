@@ -49,5 +49,17 @@ namespace TecVooDoo.Utilities
         {
             return gameObject.TryGetComponent<T>(out _);
         }
+
+        /// <summary>
+        /// Sets the layer on this GameObject and all of its children recursively.
+        /// </summary>
+        public static void SetLayerRecursively(this GameObject gameObject, int layer)
+        {
+            gameObject.layer = layer;
+            for (int i = 0; i < gameObject.transform.childCount; i++)
+            {
+                gameObject.transform.GetChild(i).gameObject.SetLayerRecursively(layer);
+            }
+        }
     }
 }

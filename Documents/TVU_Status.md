@@ -1,6 +1,6 @@
 # TecVooDoo Utilities - Status
 
-**Package:** `com.tecvoodoo.utilities` v1.0.0
+**Package:** `com.tecvoodoo.utilities` v1.2.0
 **Type:** UPM local package (shared library)
 **Source:** `E:\Unity\DefaultUnityPackages\com.tecvoodoo.utilities\`
 **Namespace:** `TecVooDoo.Utilities`
@@ -14,7 +14,7 @@
 
 | Module | Files | Status |
 |--------|-------|--------|
-| Extensions | 10 extension classes | Stable |
+| Extensions | 10 extension classes (expanded with Tier 1 methods) | Stable |
 | Timers | Timer (base), Countdown, Stopwatch, Frequency, Interval, TimerManager, TimerBootstrapper, PlayerLoopUtils | Stable |
 | Patterns | Singleton, PersistentSingleton, RegulatorSingleton, CharacterStateMachine, Transition | Stable |
 | Gameplay | LookAtCamera | Stable |
@@ -34,13 +34,22 @@ Package created with core extension methods, PlayerLoop-based timer system, sing
 **Session 1 (2026-03-16) -- Adam Myhre integrations + SimpleBoids migration:**
 SimpleBoids moved to com.tecvoodoo.games (game logic, not a utility). Added from adammyhre gists: CharacterStateMachine + Transition (Patterns/), CircularBuffer (Collections/), AllocCounter (Debug/), DataBindingHelper (UI/). All adapted to TecVooDoo standards (namespace, header, no var). Version bumped to 1.1.0.
 
+**Session 2 (2026-04-09) -- Tier 1 extension methods:**
+Added all Tier 1 pending candidates from Sandbox AssetLog:
+- **NumberExtensions:** InRangeOf (float+int), Quantize (float+int), RoundToInt
+- **VectorExtensions:** ToVector2XY, ToVector2XZ
+- **TransformExtensions:** ResetPosition, ResetRotation, ResetScale, DestroyChildren, HierarchyPath
+- **GameObjectExtensions:** SetLayerRecursively
+- **ColorExtensions:** ToHexRGB (RGB without alpha), TryFromHex (safe parse)
+All zero-dependency, high-reuse methods. Version bumped to 1.2.0.
+
 ---
 
 ## Active TODO
 
 | Task | Priority | Notes |
 |------|----------|-------|
-| No active work | -- | Library is stable at v1.0.0 |
+| No active work | -- | Library is stable at v1.2.0 |
 | Monitor for candidates in Sandbox sessions | Ongoing | See Sandbox_DevReference.md candidate criteria |
 
 ---
