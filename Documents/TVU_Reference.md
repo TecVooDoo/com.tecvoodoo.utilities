@@ -14,7 +14,7 @@
 | `Extensions/` | Extension methods on Unity types (Vector3, Transform, GameObject, List, Color, string, etc.) |
 | `Timers/` | PlayerLoop-based timers that tick without MonoBehaviour Update overhead |
 | `Patterns/` | Three singleton variants for different lifecycle needs |
-| `Gameplay/` | LookAtCamera billboard, SimpleBoids flocking |
+| `Gameplay/` | LookAtCamera billboard (SimpleBoids flocking migrated to TVDGames in Session 1) |
 | `Logging/` | Category-based debug logging, stripped from release builds |
 | `WaitFor` | Cached coroutine yield objects |
 
