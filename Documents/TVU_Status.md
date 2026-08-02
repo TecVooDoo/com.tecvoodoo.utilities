@@ -26,6 +26,19 @@
 
 ---
 
+## Tests
+
+**85 tests, 85 passing** -- last run 2026-08-02 in TVD on Unity 6000.5.5f1 (0 failed, 0 skipped, 0.16s). Six fixtures under `Tests/Runtime/`: `CollectionExtensionsTests`, `ColorExtensionsTests`, `NumberExtensionsTests`, `StringExtensionsTests`, `TimerTests`, `VectorExtensionsTests`. Assembly `TecVooDoo.Utilities.Tests` (`defineConstraints: UNITY_INCLUDE_TESTS`, `nunit.framework.dll`).
+
+**How to actually run them -- two non-obvious gates:**
+
+1. **The consuming project must list this package in `testables`.** UPM does not compile a package's test assemblies unless `Packages/manifest.json` carries `"testables": ["com.tecvoodoo.utilities"]`. Without it the tests are invisible and the Test Runner reports *"No tests found"* -- not a missing-test error, just silence. TVD had no `testables` array at all until 2026-08-02, so **these 85 tests had never been run there.**
+2. **After editing `testables`, force a package resolve.** An `assets-refresh` / `AssetDatabase.Refresh()` is **not** enough -- the assembly stays absent from `CompilationPipeline.GetAssemblies()`. `UnityEditor.PackageManager.Client.Resolve()` registers it.
+
+**They run in PlayMode, not EditMode.** `TecVooDoo.Utilities.Tests.asmdef` uses `includePlatforms: []` (all platforms) rather than `["Editor"]`, so Unity classifies the suite as PlayMode -- an EditMode run reports "No tests found" even once the assembly compiles. Via MCP: `tests-run` with `testMode: PlayMode` and `testAssembly: TecVooDoo.Utilities.Tests` (filter by assembly, or you also pull in unrelated third-party PlayMode suites). Switching the asmdef to `includePlatforms: ["Editor"]` would make these EditMode-runnable and faster; not done yet, since it affects every consuming project.
+
+---
+
 ## Sessions
 
 **Session 0 (pre-2026) -- Initial Build:**
