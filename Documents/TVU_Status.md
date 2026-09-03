@@ -56,13 +56,20 @@ Added all Tier 1 pending candidates from Sandbox AssetLog:
 - **ColorExtensions:** ToHexRGB (RGB without alpha), TryFromHex (safe parse)
 All zero-dependency, high-reuse methods. Version bumped to 1.2.0.
 
+**Session 3 (2026-09-03) -- Unity 6000.6.0f1 deprecation pass (driven from TVD S44):**
+- **`RegulatorSingleton.cs:69` -- `CS0618` x2 FIXED.** `FindObjectsByType<T>(FindObjectsSortMode.None)` -> `FindObjectsByType<T>(FindObjectsInactive.Exclude)`. **Behaviour unchanged** -- `Exclude` is the sort-mode overload's implicit default, so the previously-implicit choice is now explicit. Verified against the live 6000.6 API by reflection first (**both** sort-mode overloads carry `[Obsolete]`; the no-arg and `FindObjectsInactive` forms are clean), then verified by **rebuild** -- `TecVooDoo.Utilities.dll` recompiled with zero `CS0618`.
+- **Version deliberately NOT bumped.** A warning-only fix with no API and no behaviour change; every project file-refs this package, so a bump would churn manifests for nothing. Revisit if the `UAC0009` item below lands, since that one *can* change release-build behaviour.
+- **NEW and OPEN -- `UAC0009` x2 in `CategoryLogger.cs(27,22)` + `(42,22)`:** *"DEVELOPMENT_BUILD preprocessor directive has been deprecated"* on Unity 6000.6. Both are `[Conditional("DEVELOPMENT_BUILD")]` on `Log` / `LogWarning` (a third mention is prose at line 14). Unity suggests `DEBUG` / `UNITY_ENABLE_CHECKS` / `UNITY_INCLUDE_INSTRUMENTATION`, or runtime `Debug.isDebugBuild`. **Not auto-fixed -- this is a semantics decision, not a rename:** `[Conditional]` *strips the call site* from release player builds, whereas `Debug.isDebugBuild` only branches at runtime (no stripping, and the arguments still evaluate). Changing it changes what every consuming project ships. Needs Rune's direction.
+- **Tests NOT re-run on 6000.6** -- still the 2026-08-02 result (85/85 on 6000.5.5f1). The 6000.6 crossing is verified for compile only, not runtime.
+
 ---
 
 ## Active TODO
 
 | Task | Priority | Notes |
 |------|----------|-------|
-| No active work | -- | Library is stable at v1.2.0 |
+| **Decide the `DEVELOPMENT_BUILD` replacement** (`CategoryLogger.cs` 27 + 42) | **Rune's call** | `UAC0009` on Unity 6000.6. `[Conditional]` strips call sites in release builds; `Debug.isDebugBuild` does not. Affects every consuming project's shipped logging. See Session 3 |
+| Library otherwise stable at v1.2.0 | -- | `CS0618` cleared 2026-09-03 |
 | Monitor for candidates in Sandbox sessions | Ongoing | See Sandbox_DevReference.md candidate criteria |
 
 ---

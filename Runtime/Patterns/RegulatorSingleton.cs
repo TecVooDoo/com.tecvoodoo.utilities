@@ -66,7 +66,7 @@ namespace TecVooDoo.Utilities
             InitializationTime = Time.time;
             DontDestroyOnLoad(gameObject);
 
-            T[] existingInstances = FindObjectsByType<T>(FindObjectsSortMode.None);
+            T[] existingInstances = FindObjectsByType<T>(FindObjectsInactive.Exclude);
             for (int i = 0; i < existingInstances.Length; i++)
             {
                 RegulatorSingleton<T> regulator = existingInstances[i].GetComponent<RegulatorSingleton<T>>();
