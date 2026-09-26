@@ -67,6 +67,9 @@ All zero-dependency, high-reuse methods. Version bumped to 1.2.0.
 - **Verified by a `CleanBuildCache` rebuild with a positive control** (CodeStage `UAC0005` fired): zero `UAC0009`. `Library/ScriptAssemblies/TecVooDoo.Utilities.dll` was NOT restamped -- Bee skips the copy for byte-identical output; the Bee artifact (`Library/Bee/artifacts/*/TecVooDoo.Utilities.dll`) is the rebuild oracle.
 - **Removed 2 empty asmdefs** (0 `.cs` each, only self-references): `Editor/TecVooDoo.Utilities.Editor.asmdef` and `Tests/Editor/TecVooDoo.Utilities.Editor.Tests.asmdef`, with their folders. The clean rebuild logged 0 *"no scripts associated"* warnings. Recreate them when real editor code / EditMode tests arrive.
 - **Version NOT bumped** -- no API or behaviour change.
+- **Tests RE-RUN on 6000.6: 85/85 passing** (PlayMode, whole `TecVooDoo.Utilities.Tests` assembly, 6000.6.2f1 / MCP 0.93.1) -- closes the Session 3 *compile-only* caveat above.
+
+**The state machine is DUPLICATED across TVU and TVG (found S49, NOT resolved -- Rune's call).** `CharacterStateMachine` / `CharacterState` / `CharacterState<TState>` / `Transition` / `Transition<TState>` exist in BOTH `com.tecvoodoo.utilities/Runtime/Patterns/` (namespace `TecVooDoo.Utilities`) and `com.tecvoodoo.games/Runtime/StateMachine/` (namespace `TecVooDoo.Games`). A normalized diff shows only comments, member names (`t`/`transition`, `target`/`targetState`) and expression-bodied vs block bodies -- **behaviour is identical**. Because TVG depends on TVU, any file with both `using TecVooDoo.Utilities;` and `using TecVooDoo.Games;` that names one of these types hits `CS0104` (ambiguous reference). No fleet `Assets/` tree references either copy today (whole-`E:\Unity` grep), so removal is cheap now. TVG's copy is the tested one (`CharacterStateMachineTests`, 10 tests).
 
 ---
 
