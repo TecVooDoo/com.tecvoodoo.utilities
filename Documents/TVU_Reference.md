@@ -13,7 +13,7 @@
 |--------|-------------------|
 | `Extensions/` | Extension methods on Unity types (Vector3, Transform, GameObject, List, Color, string, etc.) |
 | `Timers/` | PlayerLoop-based timers that tick without MonoBehaviour Update overhead |
-| `Patterns/` | Three singleton variants for different lifecycle needs |
+| `Patterns/` | Three singleton variants for different lifecycle needs, plus a CRTP state machine |
 | `Gameplay/` | LookAtCamera billboard (SimpleBoids flocking migrated to TVDGames in Session 1) |
 | `Logging/` | Category-based debug logging, stripped from release builds |
 | `WaitFor` | Cached coroutine yield objects |
@@ -273,6 +273,50 @@ public class LevelManager : RegulatorSingleton<LevelManager>
 }
 ```
 
+### CharacterStateMachine / Transition
+
+CRTP (Curiously Recurring Template Pattern) state machine. Based on adammyhre gist. **Sole copy since 2026-09-26** -- an identical duplicate in TVDGames (`TecVooDoo.Games`) was deleted (TVG 1.4.0) because importing both namespaces made every use `CS0104`-ambiguous.
+
+**Key types:**
+
+| Type | Purpose |
+|------|---------|
+| `CharacterStateMachine` | Drives current state, evaluates transitions, calls `Tick()` |
+| `CharacterState<TState>` | Base for concrete states. Override `OnEnter()`, `OnExit()`, `OnTick(float dt)` |
+| `Transition<TState>` | Condition-based transition to a target state |
+
+**Usage:**
+
+```csharp
+// Define states
+public class IdleState : CharacterState<IdleState>
+{
+    protected override void OnEnter() { /* ... */ }
+    protected override void OnExit() { /* ... */ }
+    protected override void OnTick(float dt) { /* ... */ }
+}
+
+public class MoveState : CharacterState<MoveState>
+{
+    protected override void OnEnter() { /* ... */ }
+    protected override void OnExit() { /* ... */ }
+    protected override void OnTick(float dt) { /* ... */ }
+}
+
+// Wire up
+CharacterStateMachine sm = new CharacterStateMachine();
+IdleState idle = new IdleState();
+MoveState move = new MoveState();
+
+idle.SetTransition(new Transition<MoveState>(move, () => isMoving));
+move.SetTransition(new Transition<IdleState>(idle, () => !isMoving));
+
+sm.ChangeState(idle);
+
+// Each frame
+sm.Tick(Time.deltaTime);
+```
+
 ---
 
 ## Gameplay
@@ -302,7 +346,7 @@ GetComponent<LookAtCamera>().SetMode(LookAtCamera.BillboardMode.LookAt);
 
 ### CategoryLogger
 
-Category-tagged console logging. All Log/LogWarning calls are compiled out in release builds (non-editor, non-development). LogError always compiles in.
+Category-tagged console logging. Log/LogWarning carry `[Conditional("DEBUG")]` (Unity: `DEBUG` = editor or development build), so they are compiled out of release builds at the call site. LogError always compiles in.
 
 ```csharp
 CategoryLogger.Log("Combat", "Hit landed", "#00FF00");

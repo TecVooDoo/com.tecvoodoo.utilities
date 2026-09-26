@@ -16,7 +16,7 @@
 |--------|-------|--------|
 | Extensions | 10 extension classes (expanded with Tier 1 methods) | Stable |
 | Timers | Timer (base), Countdown, Stopwatch, Frequency, Interval, TimerManager, TimerBootstrapper, PlayerLoopUtils | Stable |
-| Patterns | Singleton, PersistentSingleton, RegulatorSingleton, CharacterStateMachine, Transition | Stable |
+| Patterns | Singleton, PersistentSingleton, RegulatorSingleton, CharacterStateMachine, Transition | Stable -- the fleet's ONLY state machine since 2026-09-26 (TVG's duplicate deleted) |
 | Gameplay | LookAtCamera | Stable |
 | Logging | CategoryLogger | Stable |
 | Collections | CircularBuffer | Stable |
@@ -28,7 +28,7 @@
 
 ## Tests
 
-**85 tests, 85 passing** -- last run 2026-08-02 in TVD on Unity 6000.5.5f1 (0 failed, 0 skipped, 0.16s). Six fixtures under `Tests/Runtime/`: `CollectionExtensionsTests`, `ColorExtensionsTests`, `NumberExtensionsTests`, `StringExtensionsTests`, `TimerTests`, `VectorExtensionsTests`. Assembly `TecVooDoo.Utilities.Tests` (`defineConstraints: UNITY_INCLUDE_TESTS`, `nunit.framework.dll`).
+**95 tests, 95 passing** -- last run 2026-09-26 (TVD S49) on Unity 6000.6.2f1, PlayMode, 0 failed / 0 skipped. 85 from the 2026-08-02 suite + **`CharacterStateMachineTests` (10)**, moved in from TVG with the state machine. The 2026-08-02 baseline (85/85 on 6000.5.5f1) is superseded. Six fixtures under `Tests/Runtime/`: `CollectionExtensionsTests`, `ColorExtensionsTests`, `NumberExtensionsTests`, `StringExtensionsTests`, `TimerTests`, `VectorExtensionsTests`. Assembly `TecVooDoo.Utilities.Tests` (`defineConstraints: UNITY_INCLUDE_TESTS`, `nunit.framework.dll`).
 
 **How to actually run them -- two non-obvious gates:**
 
@@ -67,9 +67,9 @@ All zero-dependency, high-reuse methods. Version bumped to 1.2.0.
 - **Verified by a `CleanBuildCache` rebuild with a positive control** (CodeStage `UAC0005` fired): zero `UAC0009`. `Library/ScriptAssemblies/TecVooDoo.Utilities.dll` was NOT restamped -- Bee skips the copy for byte-identical output; the Bee artifact (`Library/Bee/artifacts/*/TecVooDoo.Utilities.dll`) is the rebuild oracle.
 - **Removed 2 empty asmdefs** (0 `.cs` each, only self-references): `Editor/TecVooDoo.Utilities.Editor.asmdef` and `Tests/Editor/TecVooDoo.Utilities.Editor.Tests.asmdef`, with their folders. The clean rebuild logged 0 *"no scripts associated"* warnings. Recreate them when real editor code / EditMode tests arrive.
 - **Version NOT bumped** -- no API or behaviour change.
-- **Tests RE-RUN on 6000.6: 85/85 passing** (PlayMode, whole `TecVooDoo.Utilities.Tests` assembly, 6000.6.2f1 / MCP 0.93.1) -- closes the Session 3 *compile-only* caveat above.
+- **Tests RE-RUN on 6000.6: 85/85 passing, then 95/95 after the state machine's 10 tests moved in from TVG** (PlayMode, whole `TecVooDoo.Utilities.Tests` assembly, 6000.6.2f1 / MCP 0.93.1) -- closes the Session 3 *compile-only* caveat above.
 
-**The state machine is DUPLICATED across TVU and TVG (found S49, NOT resolved -- Rune's call).** `CharacterStateMachine` / `CharacterState` / `CharacterState<TState>` / `Transition` / `Transition<TState>` exist in BOTH `com.tecvoodoo.utilities/Runtime/Patterns/` (namespace `TecVooDoo.Utilities`) and `com.tecvoodoo.games/Runtime/StateMachine/` (namespace `TecVooDoo.Games`). A normalized diff shows only comments, member names (`t`/`transition`, `target`/`targetState`) and expression-bodied vs block bodies -- **behaviour is identical**. Because TVG depends on TVU, any file with both `using TecVooDoo.Utilities;` and `using TecVooDoo.Games;` that names one of these types hits `CS0104` (ambiguous reference). No fleet `Assets/` tree references either copy today (whole-`E:\Unity` grep), so removal is cheap now. TVG's copy is the tested one (`CharacterStateMachineTests`, 10 tests).
+**State-machine duplication RESOLVED 2026-09-26 (TVD S49) -- Rune kept TVU's copy.** `CharacterStateMachine` / `CharacterState` / `CharacterState<TState>` / `Transition` / `Transition<TState>` had existed, behaviour-identical, in both `com.tecvoodoo.utilities/Runtime/Patterns/` (`TecVooDoo.Utilities`) and `com.tecvoodoo.games/Runtime/StateMachine/` (`TecVooDoo.Games`); a file importing both namespaces hit `CS0104`. **TVG's copy was deleted (TVG 1.3.0 -> 1.4.0)**; its 10 `CharacterStateMachineTests` moved to TVU (namespace `TecVooDoo.Utilities.Tests`) and pass there unchanged, and the usage docs moved from `TVG_Reference.md` to `TVU_Reference.md` § Patterns. Zero fleet `Assets/` callers existed, so nothing downstream broke.
 
 ---
 
