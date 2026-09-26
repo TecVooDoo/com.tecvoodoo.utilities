@@ -10,8 +10,8 @@ namespace TecVooDoo.Utilities
     /// <summary>
     /// Lightweight categorized logger that wraps UnityEngine.Debug.Log.
     /// Each category gets a color-coded prefix for easy filtering in the Console.
-    /// All logging calls are stripped from release builds via [Conditional("UNITY_EDITOR")] and
-    /// [Conditional("DEVELOPMENT_BUILD")].
+    /// All logging calls are stripped from release builds via [Conditional("DEBUG")], which Unity
+    /// defines for Editor code and development builds.
     /// </summary>
     public static class CategoryLogger
     {
@@ -23,8 +23,7 @@ namespace TecVooDoo.Utilities
         /// <param name="message">The log message.</param>
         /// <param name="color">The hex color for the category prefix (default: cyan).</param>
         /// <param name="context">Optional Unity Object context for Console ping.</param>
-        [Conditional("UNITY_EDITOR")]
-        [Conditional("DEVELOPMENT_BUILD")]
+        [Conditional("DEBUG")]
         public static void Log(string category, string message, string color = "#00FFFF", Object context = null)
         {
             Debug.Log(FormatMessage(category, message, color), context);
@@ -38,8 +37,7 @@ namespace TecVooDoo.Utilities
         /// <param name="message">The warning message.</param>
         /// <param name="color">The hex color for the category prefix (default: yellow).</param>
         /// <param name="context">Optional Unity Object context for Console ping.</param>
-        [Conditional("UNITY_EDITOR")]
-        [Conditional("DEVELOPMENT_BUILD")]
+        [Conditional("DEBUG")]
         public static void LogWarning(string category, string message, string color = "#FFFF00", Object context = null)
         {
             Debug.LogWarning(FormatMessage(category, message, color), context);

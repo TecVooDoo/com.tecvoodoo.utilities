@@ -62,13 +62,18 @@ All zero-dependency, high-reuse methods. Version bumped to 1.2.0.
 - **NEW and OPEN -- `UAC0009` x2 in `CategoryLogger.cs(27,22)` + `(42,22)`:** *"DEVELOPMENT_BUILD preprocessor directive has been deprecated"* on Unity 6000.6. Both are `[Conditional("DEVELOPMENT_BUILD")]` on `Log` / `LogWarning` (a third mention is prose at line 14). Unity suggests `DEBUG` / `UNITY_ENABLE_CHECKS` / `UNITY_INCLUDE_INSTRUMENTATION`, or runtime `Debug.isDebugBuild`. **Not auto-fixed -- this is a semantics decision, not a rename:** `[Conditional]` *strips the call site* from release player builds, whereas `Debug.isDebugBuild` only branches at runtime (no stripping, and the arguments still evaluate). Changing it changes what every consuming project ships. Needs Rune's direction.
 - **Tests NOT re-run on 6000.6** -- still the 2026-08-02 result (85/85 on 6000.5.5f1). The 6000.6 crossing is verified for compile only, not runtime.
 
+**Session 4 (2026-09-26) -- `UAC0009` closed + empty asmdefs removed (driven from TVD S49):**
+- **`CategoryLogger` `UAC0009` x2 FIXED -- Rune chose `[Conditional("DEBUG")]`.** `Log` / `LogWarning` had `[Conditional("UNITY_EDITOR")]` + `[Conditional("DEVELOPMENT_BUILD")]` (deprecated); both replaced by one `[Conditional("DEBUG")]`. **Semantics unchanged:** the Unity 6000.6 scripting-symbol reference states `#if DEBUG` is *"equivalent to `#if UNITY_EDITOR || DEVELOPMENT_BUILD`"*. Measured: the editor compile passes `-define:DEBUG` **with Code Optimization = Release** (the `.rsp` in `Library/Bee`), so editor logging survives either optimization mode. `[Conditional]` binds in the *caller's* compilation, so release players still strip the call sites. **Ruled out:** `UNITY_ASSERTIONS` (broader -- also Debug/Checked managed-code variants), runtime `Debug.isDebugBuild` (no stripping; args evaluate in release). No callers exist in any fleet tree outside this file (whole-`E:\Unity` grep).
+- **Verified by a `CleanBuildCache` rebuild with a positive control** (CodeStage `UAC0005` fired): zero `UAC0009`. `Library/ScriptAssemblies/TecVooDoo.Utilities.dll` was NOT restamped -- Bee skips the copy for byte-identical output; the Bee artifact (`Library/Bee/artifacts/*/TecVooDoo.Utilities.dll`) is the rebuild oracle.
+- **Removed 2 empty asmdefs** (0 `.cs` each, only self-references): `Editor/TecVooDoo.Utilities.Editor.asmdef` and `Tests/Editor/TecVooDoo.Utilities.Editor.Tests.asmdef`, with their folders. The clean rebuild logged 0 *"no scripts associated"* warnings. Recreate them when real editor code / EditMode tests arrive.
+- **Version NOT bumped** -- no API or behaviour change.
+
 ---
 
 ## Active TODO
 
 | Task | Priority | Notes |
 |------|----------|-------|
-| **Decide the `DEVELOPMENT_BUILD` replacement** (`CategoryLogger.cs` 27 + 42) | **Rune's call** | `UAC0009` on Unity 6000.6. `[Conditional]` strips call sites in release builds; `Debug.isDebugBuild` does not. Affects every consuming project's shipped logging. See Session 3 |
 | Library otherwise stable at v1.2.0 | -- | `CS0618` cleared 2026-09-03 |
 | Monitor for candidates in Sandbox sessions | Ongoing | See Sandbox_DevReference.md candidate criteria |
 
