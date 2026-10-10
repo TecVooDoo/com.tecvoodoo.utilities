@@ -369,7 +369,7 @@ float[,] h = HeightmapSampler.Sample(heightmapTexture, 4097);     // [y, x], 0..
 - `heightmapResolution` is set before `size` (changing resolution rescales size).
 - **Precision ceiling is the TERRAIN, not the sampler:** `TerrainData` stores heights as 0..32766 (15 bits), so ~32.7k distinct levels is the maximum any import can reach. Measured live in SetDesign 2026-10-10 on the 763 m California tile: **32,711 distinct**, 8192 x 763 x 8192 at 4097, **1.24 s** (ENTRY-437's hand route: 6.7 s). ENTRY-437's 65,193 was counted on the float blit, before the terrain.
 
-**`HeightmapTerrain` compiles only with the `com.unity.modules.terrain` built-in module** (`TVU_TERRAIN_MODULE`, from the asmdef's `versionDefines`). BloodMiner and HideNReap disable that module; there the type is absent and TVU still compiles. `HeightmapFileName` and `HeightmapSampler` have no module dependency.
+**`HeightmapTerrain` compiles only with the `com.unity.modules.terrain` built-in module** (`TVU_TERRAIN_MODULE`, from the asmdef's `versionDefines`). A tree without the module still compiles TVU (proven offline); the type is simply absent. No fleet tree lacks it today -- MCP's terrain Extension depends on it (checked in `packages-lock.json`, not the manifest). `HeightmapFileName` and `HeightmapSampler` have no module dependency.
 
 ---
 
