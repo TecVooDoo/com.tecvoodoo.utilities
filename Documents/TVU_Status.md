@@ -1,6 +1,6 @@
 # TecVooDoo Utilities - Status
 
-**Package:** `com.tecvoodoo.utilities` v1.2.0
+**Package:** `com.tecvoodoo.utilities` v1.3.0
 **Type:** UPM local package (shared library)
 **Source:** `E:\Unity\DefaultUnityPackages\com.tecvoodoo.utilities\`
 **Namespace:** `TecVooDoo.Utilities`
@@ -23,12 +23,13 @@
 | Debug | AllocCounter | Stable |
 | UI | DataBindingHelper | Stable |
 | Root | WaitFor | Stable |
+| Terrain | HeightmapFileName, HeightmapSampler, HeightmapTerrain (`TVU_TERRAIN_MODULE`-gated) | New 1.3.0 -- synthetic-texture tested; not yet run on a real pack tile |
 
 ---
 
 ## Tests
 
-**95 tests, 95 passing** -- last run 2026-09-26 (TVD S49) on Unity 6000.6.2f1, PlayMode, 0 failed / 0 skipped. 85 from the 2026-08-02 suite + **`CharacterStateMachineTests` (10)**, moved in from TVG with the state machine. The 2026-08-02 baseline (85/85 on 6000.5.5f1) is superseded. Six fixtures under `Tests/Runtime/`: `CollectionExtensionsTests`, `ColorExtensionsTests`, `NumberExtensionsTests`, `StringExtensionsTests`, `TimerTests`, `VectorExtensionsTests`. Assembly `TecVooDoo.Utilities.Tests` (`defineConstraints: UNITY_INCLUDE_TESTS`, `nunit.framework.dll`).
+**120 tests, 120 passing** -- last run 2026-10-10 (TVD S52) on Unity 6000.6.3f1 / MCP 0.93.3, PlayMode, 0 failed / 0 skipped. **+25 in 1.3.0:** `HeightmapFileNameTests` (9), `HeightmapSamplerTests` (6), `HeightmapTerrainTests` (10, gated on `TVU_TERRAIN_MODULE`). Before that: **95 tests, 95 passing** -- run 2026-09-26 (TVD S49) on Unity 6000.6.2f1, PlayMode, 0 failed / 0 skipped. 85 from the 2026-08-02 suite + **`CharacterStateMachineTests` (10)**, moved in from TVG with the state machine. The 2026-08-02 baseline (85/85 on 6000.5.5f1) is superseded. Six fixtures under `Tests/Runtime/`: `CollectionExtensionsTests`, `ColorExtensionsTests`, `NumberExtensionsTests`, `StringExtensionsTests`, `TimerTests`, `VectorExtensionsTests`. Assembly `TecVooDoo.Utilities.Tests` (`defineConstraints: UNITY_INCLUDE_TESTS`, `nunit.framework.dll`).
 
 **How to actually run them -- two non-obvious gates:**
 
@@ -69,6 +70,13 @@ All zero-dependency, high-reuse methods. Version bumped to 1.2.0.
 - **Version NOT bumped** -- no API or behaviour change.
 - **Tests RE-RUN on 6000.6: 85/85 passing, then 95/95 after the state machine's 10 tests moved in from TVG** (PlayMode, whole `TecVooDoo.Utilities.Tests` assembly, 6000.6.2f1 / MCP 0.93.1) -- closes the Session 3 *compile-only* caveat above.
 
+**Session 5 (2026-10-10) -- Terrain module, v1.3.0 (driven from TVD S52):**
+- **NEW `Runtime/Terrain/`:** `HeightmapFileName` (parse `WL_` / `Height_` metres from a filename), `HeightmapSampler` (GPU blit of an R16 texture to an `RFloat` grid, bilinear, corner-pinned so 4096 fills 4097), `HeightmapTerrain` (`ResolutionFor`, `Apply`, `TryApply`). Source: Sandbox ENTRY-437's `heightmap-to-terrain(png)` candidate, which flagged the 8-bit `LoadImage` trap, the 4097 -> 4096 import resample, and filename-only scale.
+- **`versionDefines` added to BOTH asmdefs:** `com.unity.modules.terrain` -> `TVU_TERRAIN_MODULE`, guarding `HeightmapTerrain` + its tests. **Why:** BloodMiner and HideNReap consume TVU and do NOT list the terrain module; an unguarded `TerrainData` reference would have broken both.
+- **Bug caught by the suite before commit:** the parser first used `Path.GetFileNameWithoutExtension`, which read `Height_12.25` (no extension) as `Height_12` + extension `.25`. Now `GetFileName`; the extension never matches the patterns.
+- **Kept as a TVU utility, not a TMCP tool:** TMCP is for third-party integrations, and `script-execute` can call `HeightmapTerrain.TryApply` in one line.
+- **Tests: 120/120** (PlayMode, whole assembly, 6000.6.3f1). **Minor bump 1.2.0 -> 1.3.0** (new module, per Add Process step 4).
+
 **State-machine duplication RESOLVED 2026-09-26 (TVD S49) -- Rune kept TVU's copy.** `CharacterStateMachine` / `CharacterState` / `CharacterState<TState>` / `Transition` / `Transition<TState>` had existed, behaviour-identical, in both `com.tecvoodoo.utilities/Runtime/Patterns/` (`TecVooDoo.Utilities`) and `com.tecvoodoo.games/Runtime/StateMachine/` (`TecVooDoo.Games`); a file importing both namespaces hit `CS0104`. **TVG's copy was deleted (TVG 1.3.0 -> 1.4.0)**; its 10 `CharacterStateMachineTests` moved to TVU (namespace `TecVooDoo.Utilities.Tests`) and pass there unchanged, and the usage docs moved from `TVG_Reference.md` to `TVU_Reference.md` § Patterns. Zero fleet `Assets/` callers existed, so nothing downstream broke.
 
 ---
@@ -77,7 +85,8 @@ All zero-dependency, high-reuse methods. Version bumped to 1.2.0.
 
 | Task | Priority | Notes |
 |------|----------|-------|
-| Library otherwise stable at v1.2.0 | -- | `CS0618` cleared 2026-09-03 |
+| Run `HeightmapTerrain` on a REAL pack tile | Medium | 1.3.0 is verified on synthetic R16 ramps only. SetDesign holds ENTRY-437's pack: `TryApply` on `California/USA_24_WL_8192_Height_763.png` should give 8192 x 763 x 8192 at 4097 with ~65k distinct levels (ENTRY-437 measured 65,193) |
+| Confirm a no-terrain-module project still compiles | Low | BloodMiner / HideNReap: the `TVU_TERRAIN_MODULE` gate is untested there. Open either and check 0 `error CS` |
 | Monitor for candidates in Sandbox sessions | Ongoing | See Sandbox_DevReference.md candidate criteria |
 
 ---

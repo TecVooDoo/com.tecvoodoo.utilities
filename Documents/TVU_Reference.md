@@ -1,6 +1,6 @@
 # TecVooDoo Utilities - Reference
 
-**Package:** `com.tecvoodoo.utilities` v1.2.0
+**Package:** `com.tecvoodoo.utilities` v1.3.0
 **Namespace:** `TecVooDoo.Utilities`
 **Source:** `E:\Unity\DefaultUnityPackages\com.tecvoodoo.utilities\`
 **Last Updated:** April 9, 2026
@@ -17,6 +17,7 @@
 | `Gameplay/` | LookAtCamera billboard (SimpleBoids flocking migrated to TVDGames in Session 1) |
 | `Logging/` | Category-based debug logging, stripped from release builds |
 | `WaitFor` | Cached coroutine yield objects |
+| `Terrain/` | 16-bit heightmap texture -> TerrainData at real-world scale (filename-encoded `WL_` / `Height_`) |
 
 ---
 
@@ -339,6 +340,35 @@ GetComponent<LookAtCamera>().SetMode(LookAtCamera.BillboardMode.LookAt);
 | `LookAtInverted` | Face away from camera |
 | `CameraForward` | Match camera forward direction |
 | `CameraForwardInverted` | Match camera backward direction |
+
+---
+
+## Terrain
+
+Added v1.3.0 (2026-10-10, TVD S52). Source: Sandbox ENTRY-437 (USA Real-World Heightmaps), which measured the traps this module exists to avoid.
+
+```csharp
+// One call: scale from the filename, resolution from the texture (4096 -> 4097), heights at 16-bit precision.
+bool ok = HeightmapTerrain.TryApply(terrain.terrainData, heightmapTexture, assetPath);
+
+// Or explicitly
+HeightmapTerrain.Apply(terrainData, heightmapTexture, worldLength: 8192f, heightRange: 763f);
+
+// Pieces
+HeightmapFileName.TryParse("USA_24_WL_8192_Height_763.png", out float wl, out float range); // 8192, 763
+int res = HeightmapTerrain.ResolutionFor(4096);                  // 4097 (2^n + 1, clamped 33..4097)
+float[,] h = HeightmapSampler.Sample(heightmapTexture, 4097);     // [y, x], 0..1
+```
+
+**Import the PNG as:** format **R16**, **sRGB off**, **Non-Power of 2 = None**. Read/Write is not needed (the sampler reads through a GPU blit to an `RFloat` target).
+
+**Traps it avoids (all measured in ENTRY-437):**
+- **`Texture2D.LoadImage` drops 16-bit PNGs to 8-bit** (256 levels = ~3 m terraces on a 763 m tile). Never use it for heightmaps.
+- **4097 -> 4096 import resample.** The sampler pins corner samples to the source's corner texels, so a 4096 texture fills a 4097 grid edge-to-edge.
+- **Scale lives only in the filename.** `Height_N` is the range (max - min), not altitude.
+- `heightmapResolution` is set before `size` (changing resolution rescales size).
+
+**`HeightmapTerrain` compiles only with the `com.unity.modules.terrain` built-in module** (`TVU_TERRAIN_MODULE`, from the asmdef's `versionDefines`). BloodMiner and HideNReap disable that module; there the type is absent and TVU still compiles. `HeightmapFileName` and `HeightmapSampler` have no module dependency.
 
 ---
 

@@ -17,6 +17,12 @@
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
     ],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.modules.terrain",
+            "expression": "1.0.0",
+            "define": "TVU_TERRAIN_MODULE"
+        }
+    ],
     "noEngineReferences": false
 }
