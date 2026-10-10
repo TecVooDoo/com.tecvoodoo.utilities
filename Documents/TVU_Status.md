@@ -86,7 +86,7 @@ All zero-dependency, high-reuse methods. Version bumped to 1.2.0.
 | Task | Priority | Notes |
 |------|----------|-------|
 | ~~Run `HeightmapTerrain` on a REAL pack tile~~ DONE 2026-10-10 (SetDesign): TryApply = True, 8192 x 763 x 8192 @ 4097, 32,711 distinct (15-bit TerrainData ceiling), 1.24 s; bare filename also True; no-scale name False with data untouched | -- | 1.3.0 is verified on synthetic R16 ramps only. SetDesign holds ENTRY-437's pack: `TryApply` on `California/USA_24_WL_8192_Height_763.png` should give 8192 x 763 x 8192 at 4097 with ~65k distinct levels (ENTRY-437 measured 65,193) |
-| Confirm a no-terrain-module project still compiles | Low | BloodMiner / HideNReap: the `TVU_TERRAIN_MODULE` gate is untested there. Open either and check 0 `error CS` |
+| ~~Confirm a no-terrain-module project still compiles~~ DONE 2026-10-10 (TVD S52), OFFLINE: Unity 6000.6.3f1 Roslyn on TVD's own `TecVooDoo.Utilities.rsp` with both `*.TerrainModule.dll` refs and `-define:TVU_TERRAIN_MODULE` removed (= the BloodMiner / HideNReap case) -> **0 errors**. Control: module removed, define KEPT -> `CS1069` x2 on `TerrainData` in `HeightmapTerrain.cs` -- so the gate is what protects them | -- |
 | Monitor for candidates in Sandbox sessions | Ongoing | See Sandbox_DevReference.md candidate criteria |
 
 ---
