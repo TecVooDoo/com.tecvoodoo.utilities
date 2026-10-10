@@ -1,7 +1,9 @@
 {
     "name": "TecVooDoo.Utilities",
     "rootNamespace": "TecVooDoo.Utilities",
-    "references": [],
+    "references": [
+        "Unity.InputSystem"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
@@ -14,6 +16,11 @@
             "name": "com.unity.modules.terrain",
             "expression": "1.0.0",
             "define": "TVU_TERRAIN_MODULE"
+        },
+        {
+            "name": "com.unity.inputsystem",
+            "expression": "1.0.0",
+            "define": "TVU_INPUT_SYSTEM"
         }
     ],
     "noEngineReferences": false

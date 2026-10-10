@@ -1,6 +1,6 @@
 # TecVooDoo Utilities - Reference
 
-**Package:** `com.tecvoodoo.utilities` v1.3.0
+**Package:** `com.tecvoodoo.utilities` v1.4.0
 **Namespace:** `TecVooDoo.Utilities`
 **Source:** `E:\Unity\DefaultUnityPackages\com.tecvoodoo.utilities\`
 **Last Updated:** April 9, 2026
@@ -17,6 +17,7 @@
 | `Gameplay/` | LookAtCamera billboard (SimpleBoids flocking migrated to TVDGames in Session 1) |
 | `Logging/` | Category-based debug logging, stripped from release builds |
 | `WaitFor` | Cached coroutine yield objects |
+| `Input/` | `LastInputDevice`: was the last real input a gamepad or a pointer (idle-noise-proof); needs the Input System |
 | `Terrain/` | 16-bit heightmap texture -> TerrainData at real-world scale (filename-encoded `WL_` / `Height_`) |
 
 ---
@@ -340,6 +341,30 @@ GetComponent<LookAtCamera>().SetMode(LookAtCamera.BillboardMode.LookAt);
 | `LookAtInverted` | Face away from camera |
 | `CameraForward` | Match camera forward direction |
 | `CameraForwardInverted` | Match camera backward direction |
+
+---
+
+## Input
+
+Added v1.4.0 (2026-10-10, TVD S52). Promoted from BloodMiner (`BM.Game.LastInputDevice`, BM S306).
+
+```csharp
+if (LastInputDevice.IsGamepad) ShowPadPrompts(); else ShowMousePrompts();
+LastInputDevice.Changed += RefreshPrompts;            // fires after IsGamepad flips
+LastInputDevice.PadThreshold = 0.5f;                   // default; how far a pad control must move to count
+
+// A stick-driven cursor's virtual Mouse is gamepad input:
+Mouse cursor = InputSystem.AddDevice<Mouse>("PadCursor");
+LastInputDevice.RegisterVirtualGamepadDevice(cursor);
+// ... before InputSystem.RemoveDevice(cursor):
+LastInputDevice.UnregisterVirtualGamepadDevice(cursor);
+```
+
+**Why not device presence or `lastUpdateTime`:** some pads (PlayStation-style HID) stream reports while IDLE, so "the pad reported last" is true for a mouse player who merely has one plugged in. Only events that CHANGE a control count, and a pad must move past `PadThreshold`. Mouse, keyboard and touch have no idle noise, so any change counts. Starts automatically before the first scene load (`Enable` / `Disable` for manual control); statics reset at `SubsystemRegistration`, so it is safe with domain reload disabled.
+
+**Compiles only with `com.unity.inputsystem`** (`TVU_INPUT_SYSTEM` versionDefine; the asmdef references `Unity.InputSystem`). Without the package TVU still compiles (proven offline) and the type is absent.
+
+**Testing note:** a stick value inside the Input System's default deadzone (0.125) never reaches `PadThreshold`. Test the threshold with a value between the deadzone and 0.5 (the suite uses 0.3).
 
 ---
 

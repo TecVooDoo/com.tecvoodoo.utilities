@@ -1,6 +1,6 @@
 # TecVooDoo Utilities - Status
 
-**Package:** `com.tecvoodoo.utilities` v1.3.0
+**Package:** `com.tecvoodoo.utilities` v1.4.0
 **Type:** UPM local package (shared library)
 **Source:** `E:\Unity\DefaultUnityPackages\com.tecvoodoo.utilities\`
 **Namespace:** `TecVooDoo.Utilities`
@@ -23,13 +23,14 @@
 | Debug | AllocCounter | Stable |
 | UI | DataBindingHelper | Stable |
 | Root | WaitFor | Stable |
+| Input | LastInputDevice (`TVU_INPUT_SYSTEM`-gated) | New 1.4.0 -- promoted from BloodMiner; 11 EditMode tests via `InputTestFixture` |
 | Terrain | HeightmapFileName, HeightmapSampler, HeightmapTerrain (`TVU_TERRAIN_MODULE`-gated) | New 1.3.0 -- **live-verified on a real pack tile in SetDesign 2026-10-10** (32,711 levels = the 15-bit TerrainData ceiling; 1.24 s) |
 
 ---
 
 ## Tests
 
-**120 tests, 120 passing** -- last run 2026-10-10 (TVD S52) on Unity 6000.6.3f1 / MCP 0.93.3, **EditMode** (was PlayMode until the S52 switch), 0 failed / 0 skipped. **+25 in 1.3.0:** `HeightmapFileNameTests` (9), `HeightmapSamplerTests` (6), `HeightmapTerrainTests` (10, gated on `TVU_TERRAIN_MODULE`). Before that: **95 tests, 95 passing** -- run 2026-09-26 (TVD S49) on Unity 6000.6.2f1, PlayMode, 0 failed / 0 skipped. 85 from the 2026-08-02 suite + **`CharacterStateMachineTests` (10)**, moved in from TVG with the state machine. The 2026-08-02 baseline (85/85 on 6000.5.5f1) is superseded. Six fixtures under `Tests/Runtime/`: `CollectionExtensionsTests`, `ColorExtensionsTests`, `NumberExtensionsTests`, `StringExtensionsTests`, `TimerTests`, `VectorExtensionsTests`. Assembly `TecVooDoo.Utilities.Tests` (`defineConstraints: UNITY_INCLUDE_TESTS`, `nunit.framework.dll`).
+**131 tests, 131 passing** -- last run 2026-10-10 (TVD S52) on Unity 6000.6.3f1 / MCP 0.93.3, **EditMode**. **+11 in 1.4.0:** `LastInputDeviceTests` (real Input System events through `InputTestFixture`; the test asmdef now references `Unity.InputSystem` + `Unity.InputSystem.TestFramework`). Before that: **120 tests**, (was PlayMode until the S52 switch), 0 failed / 0 skipped. **+25 in 1.3.0:** `HeightmapFileNameTests` (9), `HeightmapSamplerTests` (6), `HeightmapTerrainTests` (10, gated on `TVU_TERRAIN_MODULE`). Before that: **95 tests, 95 passing** -- run 2026-09-26 (TVD S49) on Unity 6000.6.2f1, PlayMode, 0 failed / 0 skipped. 85 from the 2026-08-02 suite + **`CharacterStateMachineTests` (10)**, moved in from TVG with the state machine. The 2026-08-02 baseline (85/85 on 6000.5.5f1) is superseded. Six fixtures under `Tests/Runtime/`: `CollectionExtensionsTests`, `ColorExtensionsTests`, `NumberExtensionsTests`, `StringExtensionsTests`, `TimerTests`, `VectorExtensionsTests`. Assembly `TecVooDoo.Utilities.Tests` (`defineConstraints: UNITY_INCLUDE_TESTS`, `nunit.framework.dll`).
 
 **How to actually run them -- two non-obvious gates:**
 
@@ -69,6 +70,12 @@ All zero-dependency, high-reuse methods. Version bumped to 1.2.0.
 - **Removed 2 empty asmdefs** (0 `.cs` each, only self-references): `Editor/TecVooDoo.Utilities.Editor.asmdef` and `Tests/Editor/TecVooDoo.Utilities.Editor.Tests.asmdef`, with their folders. The clean rebuild logged 0 *"no scripts associated"* warnings. Recreate them when real editor code / EditMode tests arrive.
 - **Version NOT bumped** -- no API or behaviour change.
 - **Tests RE-RUN on 6000.6: 85/85 passing, then 95/95 after the state machine's 10 tests moved in from TVG** (PlayMode, whole `TecVooDoo.Utilities.Tests` assembly, 6000.6.2f1 / MCP 0.93.1) -- closes the Session 3 *compile-only* caveat above.
+
+**Session 6 (2026-10-10) -- Input module, v1.4.0 (driven from TVD S52; Rune: "go ahead"):**
+- **NEW `Runtime/Input/LastInputDevice`**, promoted from BloodMiner's `BM.Game.LastInputDevice` (BM S306, 63 lines; flagged as a TVU candidate by Sandbox). Four changes on the way in: (1) BM's `GamepadCursor.IsVirtualDevice` dependency -> `RegisterVirtualGamepadDevice` / `UnregisterVirtualGamepadDevice`; (2) LINQ `.Any()` on the per-event path -> a `foreach` with early return over the struct collection (no allocation); (3) `PadThreshold` configurable (default 0.5); (4) public `Enable` / `Disable` / `IsEnabled`. Statics reset at `SubsystemRegistration` (domain-reload-off safe).
+- **Gated:** `versionDefines` `com.unity.inputsystem` -> `TVU_INPUT_SYSTEM` on both asmdefs; `Unity.InputSystem` referenced. **Offline proof:** TVU compiles with the Input System ref + define removed (0 errors); the control (define kept) fails `CS0234`.
+- **Tests 120 -> 131 (EditMode).** One test first passed for the WRONG reason: a 0.1 stick value sits inside the Input System's default 0.125 stick deadzone, so it never reached `PadThreshold`. Now 0.3 is rejected at 0.5 and accepted at 0.1, so the threshold is what decides.
+- **BloodMiner migration requested** (delete its copy, register `GamepadCursor`'s virtual mouse).
 
 **Session 5 (2026-10-10) -- Terrain module, v1.3.0 (driven from TVD S52):**
 - **NEW `Runtime/Terrain/`:** `HeightmapFileName` (parse `WL_` / `Height_` metres from a filename), `HeightmapSampler` (GPU blit of an R16 texture to an `RFloat` grid, bilinear, corner-pinned so 4096 fills 4097), `HeightmapTerrain` (`ResolutionFor`, `Apply`, `TryApply`). Source: Sandbox ENTRY-437's `heightmap-to-terrain(png)` candidate, which flagged the 8-bit `LoadImage` trap, the 4097 -> 4096 import resample, and filename-only scale.
